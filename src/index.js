@@ -686,6 +686,5 @@ function animate() {
         moveCamera(deltaTime)
     }
 
-    console.log(playerCollider.end)
     renderer.render(scene, camera)
 }
