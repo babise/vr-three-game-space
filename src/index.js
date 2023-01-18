@@ -8,7 +8,8 @@ import { OctreeHelper } from './libs/OctreeHelper.js';
 import { Capsule } from './libs/Capsule.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
-import { Pane } from 'tweakpane'
+import { Pane } from 'tweakpane';
+import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
 
 /**
  * CONSTANTS
@@ -67,42 +68,6 @@ hemiLight.groundColor.setHSL(0.095, 1, 0.75);
 hemiLight.position.set(0, 500, 0);
 scene.add(hemiLight);
 
-//Add area light
-const areaLight = new THREE.RectAreaLight(0xffffff, 0, 10, 10);
-areaLight.position.set(0, 5, 0);
-
-
-const directionalLight = new THREE.DirectionalLight(0x7b00ff, 0.8);
-directionalLight.position.set(- 5, 25, - 1);
-directionalLight.castShadow = true;
-directionalLight.shadow.camera.near = 0.01;
-directionalLight.shadow.camera.far = 100;
-directionalLight.shadow.camera.right = 30;
-directionalLight.shadow.camera.left = - 30;
-directionalLight.shadow.camera.top = 30;
-directionalLight.shadow.camera.bottom = - 30;
-directionalLight.shadow.mapSize.width = 1024;
-directionalLight.shadow.mapSize.height = 1024;
-directionalLight.shadow.radius = 4;
-directionalLight.shadow.bias = - 0.00006;
-scene.add(directionalLight);
-
-const directionalLight2 = new THREE.DirectionalLight(0xff0000, 0.8);
-directionalLight2.position.set(5, -25, 1);
-directionalLight2.castShadow = true;
-directionalLight2.shadow.camera.near = 0.01;
-directionalLight2.shadow.camera.far = 100;
-directionalLight2.shadow.camera.right = 30;
-directionalLight2.shadow.camera.left = - 30;
-directionalLight2.shadow.camera.top = 30;
-directionalLight2.shadow.camera.bottom = - 30;
-directionalLight2.shadow.mapSize.width = 1024;
-directionalLight2.shadow.mapSize.height = 1024;
-directionalLight2.shadow.radius = 4;
-directionalLight2.shadow.bias = - 0.00006;
-scene.add(directionalLight2);
-
-
 //Add cube
 const options = {
     enableSwoopingCamera: false,
@@ -145,6 +110,63 @@ transparentCube.position.set(5.63, 12, -15);
 transparentCube.rotateX(Math.PI / 4);
 transparentCube.rotateY(Math.PI / 4);
 transparentCubeGroup.add(transparentCube);
+
+//Add area light
+const areaLight = new THREE.RectAreaLight(0xffffff, 500.00, 10, 10);
+areaLight.position.set(0, 5, 0);
+
+const shroomAreaLight = new THREE.RectAreaLight(0xffffff, 342.39, 3.37, 3.04);
+shroomAreaLight.position.set(7.83, 20.98, -11.30);
+const shroomAreaLightHelper = new RectAreaLightHelper(shroomAreaLight);
+// shroomAreaLight.add(shroomAreaLightHelper);
+shroomAreaLight.lookAt(transparentCube.position);
+
+// pane.addInput(shroomAreaLight, 'intensity', { min: 0, max: 500, step: 0.01 });
+// pane.addInput(shroomAreaLight, 'width', { min: 0, max: 10, step: 0.01 });
+// pane.addInput(shroomAreaLight, 'height', { min: 0, max: 10, step: 0.01 });
+// pane.addInput(shroomAreaLight.position, 'x', { min: -40, max: 70, step: 0.01 });
+// pane.addInput(shroomAreaLight.position, 'y', { min: -40, max: 70, step: 0.01 });
+// pane.addInput(shroomAreaLight.position, 'z', { min: -40, max: 70, step: 0.01 });
+// pane.addInput(lightLookAt, 'x', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
+// pane.addInput(lightLookAt, 'y', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
+// pane.addInput(lightLookAt, 'z', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
+
+
+scene.add(shroomAreaLight);
+
+
+const directionalLight = new THREE.DirectionalLight(0x7b00ff, 0.8);
+directionalLight.position.set(- 5, 25, - 1);
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.near = 0.01;
+directionalLight.shadow.camera.far = 100;
+directionalLight.shadow.camera.right = 30;
+directionalLight.shadow.camera.left = - 30;
+directionalLight.shadow.camera.top = 30;
+directionalLight.shadow.camera.bottom = - 30;
+directionalLight.shadow.mapSize.width = 1024;
+directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.radius = 4;
+directionalLight.shadow.bias = - 0.00006;
+scene.add(directionalLight);
+
+const directionalLight2 = new THREE.DirectionalLight(0xff0000, 0.8);
+directionalLight2.position.set(5, -25, 1);
+directionalLight2.castShadow = true;
+directionalLight2.shadow.camera.near = 0.01;
+directionalLight2.shadow.camera.far = 100;
+directionalLight2.shadow.camera.right = 30;
+directionalLight2.shadow.camera.left = - 30;
+directionalLight2.shadow.camera.top = 30;
+directionalLight2.shadow.camera.bottom = - 30;
+directionalLight2.shadow.mapSize.width = 1024;
+directionalLight2.shadow.mapSize.height = 1024;
+directionalLight2.shadow.radius = 4;
+directionalLight2.shadow.bias = - 0.00006;
+scene.add(directionalLight2);
+
+
+
 
 // pane.addInput(transparentCube.position, 'x', { min: 4, max: 7, step: 0.01 })
 // pane.addInput(transparentCube.position, 'y', { min: 4, max: 20, step: 0.01 })
@@ -637,6 +659,7 @@ function animate() {
     if (cameraMoving) {
         moveCamera(deltaTime)
     }
+
 
     renderer.render(scene, camera)
 }
