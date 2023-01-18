@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "three": "^0.148.0",
-    "tweakpane": "^3.1.2"
+    "tweakpane": "^3.1.2",
+    "vite": "^4.0.4"
   }
 }

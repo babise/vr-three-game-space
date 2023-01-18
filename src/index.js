@@ -567,6 +567,7 @@ function teleportPlayerIfOob() {
 function jump() {
     if (dolly.position.y < 5) {
         playerVelocity.y = 15;
+        playerVelocity.z -= 15;
     }
 }
 
