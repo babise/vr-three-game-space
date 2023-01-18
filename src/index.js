@@ -60,15 +60,15 @@ camera.add(dummyCam)
 /**
  * LIGHTS
  */
-const hemiLight = new THREE.HemisphereLight( 0x621e87, 0x621e87, 0.01 );
-hemiLight.color.setHSL( 0.6, 1, 0.6 );
-hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-hemiLight.position.set( 0, 500, 0 );
-scene.add( hemiLight );
+const hemiLight = new THREE.HemisphereLight(0x621e87, 0x621e87, 0.01);
+hemiLight.color.setHSL(0.6, 1, 0.6);
+hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+hemiLight.position.set(0, 500, 0);
+scene.add(hemiLight);
 
 //Add area light
-const areaLight = new THREE.RectAreaLight( 0xffffff, 1, 10, 10 );
-areaLight.position.set( 0, 5, 0 );
+const areaLight = new THREE.RectAreaLight(0xffffff, 1, 10, 10);
+areaLight.position.set(0, 5, 0);
 
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -87,51 +87,6 @@ directionalLight.shadow.bias = - 0.00006;
 scene.add(directionalLight);
 
 
-//Add particle light
-// Créer un nouveau jeu de particules
-var particles = new THREE.BufferGeometry();
-
-// Ajouter des positions aléatoires pour chaque particule
-for (var i = 0; i < 1000; i++) {
-    var x = Math.random() * 200 - 100;
-    var y = Math.random() * 200 - 100;
-    var z = Math.random() * 200 - 100;
-    particles.vertices.push(new THREE.Vector3(x, y, z));
-}
-
-// Créer un matériau pour les particules
-var particleMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        color: { value: new THREE.Color(0xffffff) },
-        pointSize: { value: 3 }
-    },
-    vertexShader: `
-        uniform float pointSize;
-        varying vec3 vColor;
-        void main() {
-            vColor = color;
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            gl_PointSize = pointSize;
-            gl_Position = projectionMatrix * mvPosition;
-        }
-    `,
-    fragmentShader: `
-        uniform vec3 color;
-        varying vec3 vColor;
-        void main() {
-            gl_FragColor = vec4(vColor, 1.0);
-        }
-    `,
-    blending: THREE.AdditiveBlending,
-    transparent: true
-});
-
-// Créer un nouveau nuage de particules
-var particleSystem = new THREE.Points(particles, particleMaterial);
-particleSystem.sortParticles = true;
-
-// Ajouter le nuage de particules à la scène
-scene.add(particleSystem);
 
 /**
  * RENDERER
@@ -236,14 +191,18 @@ function throwBall(controller) {
 
     camera.getWorldDirection(playerDirection)
     const direction = controller ? controller.position : playerDirection
+    if (controller) console.log(controller);
 
 
     const impulse = controller ? 35 : 15 + 30 * (1 - Math.exp((mouseTime - performance.now()) * 0.001))
-    cube.velocity.copy(direction).multiplyScalar(impulse)
     if (controller) {
-        cube.collider.center.copy(controller.position)
+        const vel = direction;
+        vel.z -= 0.5
+        cube.velocity.copy(vel).multiplyScalar(impulse)
+        cube.collider.center.copy(dolly.position);
     }
     else {
+        cube.velocity.copy(direction).multiplyScalar(impulse)
         cube.collider.center.copy(playerCollider.end).addScaledVector(direction, playerCollider.radius * 1.5)
         cube.velocity.addScaledVector(playerVelocity, 2)
     }
@@ -293,12 +252,6 @@ function updatePlayer(deltaTime) {
     playerCollisions();
 
     dolly.position.copy(playerCollider.end)
-    // controller1.parent = dolly
-    // controller2.parent = dolly
-    hand1.parent = dolly
-    hand2.parent = dolly
-    controller1.position.z = 5
-    hand1.position.z = 5
 }
 
 function playerCubeCollision(cube) {
@@ -447,15 +400,11 @@ const material = new THREE.MeshBasicMaterial({ color: '#2AF8FF' })
 const loader = new GLTFLoader().setPath('./models/gltf/');
 
 loader.load('map_colored_3.glb', (gltf) => {
-    console.log(gltf.scene);
 
     scene.add(gltf.scene);
 
     worldOctree.fromGraphNode(gltf.scene);
 
-    gltf.scene.traverse(child => {
-        // child.material = material
-    })
 
     gltf.scene.traverse(child => {
 
@@ -505,8 +454,7 @@ function setController() {
     controller1 = renderer.xr.getController(0);
     controller2 = renderer.xr.getController(1);
     dolly.add(controller1);
-    dolly.add(controller2);
-    scene.add(controller1, controller2);
+    scene.add(controller2);
 
     const controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
