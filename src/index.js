@@ -8,6 +8,7 @@ import { OctreeHelper } from './libs/OctreeHelper.js';
 import { Capsule } from './libs/Capsule.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
+import {Pane} from 'tweakpane'
 
 /**
  * CONSTANTS
@@ -30,6 +31,8 @@ let cameraMoving = false;
 const container = document.getElementById('container');
 
 let controller1, controller2, hand1, hand2
+
+// const pane = new Pane()
 
 
 /**
@@ -67,11 +70,11 @@ hemiLight.position.set(0, 500, 0);
 scene.add(hemiLight);
 
 //Add area light
-const areaLight = new THREE.RectAreaLight(0xffffff, 1, 10, 10);
+const areaLight = new THREE.RectAreaLight(0xffffff, 0, 10, 10);
 areaLight.position.set(0, 5, 0);
 
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+const directionalLight = new THREE.DirectionalLight(0x7b00ff, 0.8);
 directionalLight.position.set(- 5, 25, - 1);
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.near = 0.01;
@@ -86,6 +89,71 @@ directionalLight.shadow.radius = 4;
 directionalLight.shadow.bias = - 0.00006;
 scene.add(directionalLight);
 
+const directionalLight2 = new THREE.DirectionalLight(0xff0000, 0.8);
+directionalLight2.position.set(5, -25, 1);
+directionalLight2.castShadow = true;
+directionalLight2.shadow.camera.near = 0.01;
+directionalLight2.shadow.camera.far = 100;
+directionalLight2.shadow.camera.right = 30;
+directionalLight2.shadow.camera.left = - 30;
+directionalLight2.shadow.camera.top = 30;
+directionalLight2.shadow.camera.bottom = - 30;
+directionalLight2.shadow.mapSize.width = 1024;
+directionalLight2.shadow.mapSize.height = 1024;
+directionalLight2.shadow.radius = 4;
+directionalLight2.shadow.bias = - 0.00006;
+scene.add(directionalLight2);
+
+
+//Add cube
+const options = {
+    enableSwoopingCamera: false,
+    enableRotation: true,
+    transmission: 1,
+    thickness: 1,
+    roughness: 0.07,
+    envMapIntensity: 1.5,
+    metalness: 0.5,
+    reflectivity: 0.5,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.5
+  };
+const cubeGeometryTransparent = new THREE.BoxGeometry(10, 10, 10);
+const cubeMaterial = new THREE.MeshPhysicalMaterial({
+    transmission: options.transmission,
+    thickness: options.thickness,
+    roughness: options.roughness,
+    metalness: options.metalness,
+    reflectivity: options.reflectivity,
+    clearcoat: options.clearcoat,
+    clearcoatRoughness: options.clearcoatRoughness,
+    flatShading: false,
+    // envMap: hdrEquirect
+  });
+
+// pane.addInput(options, 'transmission', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.transmission = options.transmission);
+// pane.addInput(options, 'thickness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.thickness = options.thickness);
+// pane.addInput(options, 'roughness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.roughness = options.roughness);
+// pane.addInput(options, 'metalness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.metalness = options.metalness);
+// pane.addInput(options, 'reflectivity', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.reflectivity = options.reflectivity);
+// pane.addInput(options, 'clearcoat', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.clearcoat = options.clearcoat);
+// pane.addInput(options, 'clearcoatRoughness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.clearcoatRoughness = options.clearcoatRoughness);
+// pane.addInput(cubeMaterial, 'flatShading');
+
+const transparentCubeGroup = new THREE.Group();
+scene.add(transparentCubeGroup);
+const transparentCube = new THREE.Mesh(cubeGeometryTransparent, cubeMaterial);
+transparentCube.position.set(5.63, 12, -15);
+transparentCube.rotateX(Math.PI / 4);
+transparentCube.rotateY(Math.PI / 4);
+transparentCubeGroup.add(transparentCube);
+
+// pane.addInput(transparentCube.position, 'x', { min: 4, max: 7, step: 0.01 })
+// pane.addInput(transparentCube.position, 'y', { min: 4, max: 20, step: 0.01 })
+// pane.addInput(transparentCube.position, 'z', { min: -15, max: -12, step: 0.01 })
+// pane.addInput(transparentCube.rotation, 'x', { min: 0, max: 5, step: 0.01 })
+// pane.addInput(transparentCube.rotation, 'y', { min: 0, max: 5, step: 0.01 })
+// pane.addInput(transparentCube.rotation, 'z', { min: 0, max: 5, step: 0.01 })
 
 
 /**
@@ -496,6 +564,9 @@ function animate() {
     scene.updateMatrixWorld()
     scene.updateWorldMatrix()
 
+    transparentCube.rotation.x += 0.01
+    transparentCube.rotation.y += 0.01
+
     for (let i = 0; i < STEPS_PER_FRAME; i++) {
         controls(deltaTime)
         updatePlayer(deltaTime)
@@ -506,6 +577,8 @@ function animate() {
     if (cameraMoving) {
         moveCamera(deltaTime)
     }
+
+    console.log(playerCollider.end);
 
     renderer.render(scene, camera)
 }
