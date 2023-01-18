@@ -59,6 +59,7 @@ scene.add(dolly)
 const dummyCam = new THREE.Object3D()
 camera.add(dummyCam)
 
+
 /**
  * LIGHTS
  */
@@ -259,7 +260,9 @@ for (let i = 0; i < NUM_CUBES; i++) {
 
     const CUBE_RADIUS = Math.random() / 2 + 0.2
     const cubeGeometry = new THREE.BoxGeometry(CUBE_RADIUS, CUBE_RADIUS, CUBE_RADIUS);
-    const cubeMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(Math.random(), Math.random(), Math.random()) });
+    const cubeMaterial = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(Math.random(), Math.random(), Math.random()),
+    });
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.castShadow = true;
     cube.receiveShadow = true;
@@ -383,15 +386,12 @@ function playerCollisions() {
 
 function updatePlayer(deltaTime) {
 
-    let damping = Math.exp(- 4 * deltaTime) - 1; // exponential decay with a time constant of 0.25 seconds (4 times per second) 
+    let damping = Math.exp(-4 * deltaTime) - 1; // exponential decay with a time constant of 0.25 seconds (4 times per second) 
 
     if (!playerOnFloor) {
-
         playerVelocity.y -= GRAVITY * deltaTime;
-
         // small air resistance
         damping *= 0.1;
-
     }
 
     playerVelocity.addScaledVector(playerVelocity, damping);
@@ -488,7 +488,7 @@ function updateCubes(deltaTime) {
         } else {
             cube.velocity.y -= GRAVITY * deltaTime;
         }
-        const damping = Math.exp(- 1.5 * deltaTime) - 1;
+        const damping = Math.exp(-2 * deltaTime) - 1;
         cube.velocity.addScaledVector(cube.velocity, damping);
         playerCubeCollision(cube);
     });
@@ -589,7 +589,6 @@ function teleportPlayerIfOob() {
 function jump() {
     if (dolly.position.y < 5) {
         playerVelocity.y = 15;
-        playerVelocity.z -= 15;
     }
 }
 
