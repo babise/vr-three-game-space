@@ -33,7 +33,6 @@ let controller1, controller2, hand1, hand2
 
 // const pane = new Pane()
 
-
 /**
  * SETUP SCENE
  */
@@ -80,7 +79,8 @@ const options = {
     metalness: 0.5,
     reflectivity: 0.5,
     clearcoat: 0.5,
-    clearcoatRoughness: 0.5
+    clearcoatRoughness: 0.5,
+    color: '0x000000'
 };
 const cubeGeometryTransparent = new THREE.BoxGeometry(10, 10, 10);
 const cubeMaterial = new THREE.MeshPhysicalMaterial({
@@ -92,8 +92,12 @@ const cubeMaterial = new THREE.MeshPhysicalMaterial({
     clearcoat: options.clearcoat,
     clearcoatRoughness: options.clearcoatRoughness,
     flatShading: false,
+    color: new THREE.Color(options.color),
+    opacity: 0.1,
     // envMap: hdrEquirect
 });
+
+// pane.addInput(options, 'color').on('change', () => cubeMaterial.color = new THREE.Color(options.color));
 
 // pane.addInput(options, 'transmission', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.transmission = options.transmission);
 // pane.addInput(options, 'thickness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.thickness = options.thickness);
@@ -134,6 +138,29 @@ shroomAreaLight.lookAt(transparentCube.position);
 
 
 scene.add(shroomAreaLight);
+
+
+//Add spot light
+const fatmaAreaLight = new THREE.RectAreaLight(0x0fffaf, 114.13, 7.28, 7.93);
+fatmaAreaLight.position.set(-50.22, 25.87, 13.70);
+// const fatmaAreaLightHelper = new RectAreaLightHelper(fatmaAreaLight);
+// fatmaAreaLight.add(fatmaAreaLightHelper);
+const fatmaAreaLightLookAt = new THREE.Vector3(-56.09, 18.69, 16.23);
+fatmaAreaLight.lookAt(fatmaAreaLightLookAt);
+
+// pane.addInput(fatmaAreaLight.position, 'x', { min: -70, max: 70, step: 0.01 });
+// pane.addInput(fatmaAreaLight.position, 'y', { min: -70, max: 70, step: 0.01 });
+// pane.addInput(fatmaAreaLight.position, 'z', { min: -70, max: 70, step: 0.01 });
+// pane.addInput(fatmaAreaLight, 'intensity', { min: 0, max: 500, step: 0.01 });
+// pane.addInput(fatmaAreaLight, 'width', { min: 0, max: 10, step: 0.01 });
+// pane.addInput(fatmaAreaLight, 'height', { min: 0, max: 10, step: 0.01 });
+
+
+
+scene.add(fatmaAreaLight);
+
+
+
 
 
 const directionalLight = new THREE.DirectionalLight(0x7b00ff, 0.8);
@@ -659,6 +686,6 @@ function animate() {
         moveCamera(deltaTime)
     }
 
-
+    console.log(playerCollider.end)
     renderer.render(scene, camera)
 }
