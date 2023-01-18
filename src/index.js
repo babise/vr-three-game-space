@@ -86,6 +86,53 @@ directionalLight.shadow.radius = 4;
 directionalLight.shadow.bias = - 0.00006;
 scene.add(directionalLight);
 
+
+//Add particle light
+// Créer un nouveau jeu de particules
+var particles = new THREE.BufferGeometry();
+
+// Ajouter des positions aléatoires pour chaque particule
+for (var i = 0; i < 1000; i++) {
+    var x = Math.random() * 200 - 100;
+    var y = Math.random() * 200 - 100;
+    var z = Math.random() * 200 - 100;
+    particles.vertices.push(new THREE.Vector3(x, y, z));
+}
+
+// Créer un matériau pour les particules
+var particleMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        color: { value: new THREE.Color(0xffffff) },
+        pointSize: { value: 3 }
+    },
+    vertexShader: `
+        uniform float pointSize;
+        varying vec3 vColor;
+        void main() {
+            vColor = color;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = pointSize;
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 color;
+        varying vec3 vColor;
+        void main() {
+            gl_FragColor = vec4(vColor, 1.0);
+        }
+    `,
+    blending: THREE.AdditiveBlending,
+    transparent: true
+});
+
+// Créer un nouveau nuage de particules
+var particleSystem = new THREE.Points(particles, particleMaterial);
+particleSystem.sortParticles = true;
+
+// Ajouter le nuage de particules à la scène
+scene.add(particleSystem);
+
 /**
  * RENDERER
  */
