@@ -17,11 +17,9 @@ import { Pane } from 'tweakpane'
 const GRAVITY = 30;
 
 const NUM_CUBES = 100;
-const CUBE_RADIUS = 0.2;
 
 const STEPS_PER_FRAME = 5;
 
-const cubeGeometry = new THREE.BoxGeometry(CUBE_RADIUS, CUBE_RADIUS, CUBE_RADIUS);
 
 const cubes = [];
 let cubeIdx = 0;
@@ -193,7 +191,7 @@ const particlesMaterial = new THREE.ShaderMaterial({
     void main() {
         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-        modelPosition.y += sin(uTime + modelPosition.x * 100.0) * aScale * 0.3;
+        modelPosition.y += sin(uTime + modelPosition.x * 200.0) * aScale * 3.0;
 
         vec4 viewPosition = viewMatrix * modelPosition;
         vec4 projectionPosition = projectionMatrix * viewPosition;
@@ -237,6 +235,8 @@ container.appendChild(button)
 
 for (let i = 0; i < NUM_CUBES; i++) {
 
+    const CUBE_RADIUS = Math.random() / 2 + 0.2
+    const cubeGeometry = new THREE.BoxGeometry(CUBE_RADIUS, CUBE_RADIUS, CUBE_RADIUS);
     const cubeMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(Math.random(), Math.random(), Math.random()) });
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.castShadow = true;
@@ -246,7 +246,7 @@ for (let i = 0; i < NUM_CUBES; i++) {
 
     cubes.push({
         mesh: cube,
-        collider: new THREE.Sphere(new THREE.Vector3(0, - 100, 0), CUBE_RADIUS),
+        collider: new THREE.Sphere(new THREE.Vector3(0, - 100, 0), CUBE_RADIUS - CUBE_RADIUS / 2),
         velocity: new THREE.Vector3()
     });
 
@@ -326,7 +326,7 @@ function throwBall(controller) {
         direction.y += 0.3
         cube.velocity.copy(direction).multiplyScalar(impulse)
         const pos = dolly.position
-        pos.y += 1.7
+        pos.y += 1.2
         cube.collider.center.copy(pos);
     }
     else {
@@ -637,8 +637,6 @@ function animate() {
     if (cameraMoving) {
         moveCamera(deltaTime)
     }
-
-    console.log(playerCollider.end);
 
     renderer.render(scene, camera)
 }
