@@ -9,6 +9,9 @@ import { Capsule } from './libs/Capsule.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
 
+// import particlesVertexShader from './shaders/particles/vertex.glsl'
+// import particlesFragmentShader from './shaders/particles/fragment.glsl'
+
 /**
  * CONSTANTS
  */
@@ -86,6 +89,66 @@ directionalLight.shadow.radius = 4;
 directionalLight.shadow.bias = - 0.00006;
 scene.add(directionalLight);
 
+/**
+ * Particules
+ */
+
+const particlesGeometry = new THREE.BufferGeometry()
+const particlesCount = 300
+const positionArray = new Float32Array(particlesCount * 3)
+const scaleArray = new Float32Array(particlesCount)
+
+for (let i = 0; i < particlesCount; i++) {
+    positionArray[i * 3 + 0] = (Math.random() - 0.5) * 150
+    positionArray[i * 3 + 1] = Math.random() * 10
+    positionArray[i * 3 + 2] = (Math.random() - 0.5) * 150
+
+    scaleArray[i] = Math.random()
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3))
+particlesGeometry.setAttribute('aScale', new THREE.BufferAttribute(scaleArray, 1))
+
+const particlesMaterial = new THREE.ShaderMaterial({
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uSize: { value: 200 },
+    },
+    vertexShader: `
+    uniform float uTime;
+    uniform float uPixelRatio;
+    uniform float uSize;
+
+    attribute float aScale;
+
+    void main() {
+        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+
+        modelPosition.y += sin(uTime + modelPosition.x * 100.0) * aScale * 0.3;
+
+        vec4 viewPosition = viewMatrix * modelPosition;
+        vec4 projectionPosition = projectionMatrix * viewPosition;
+
+        gl_Position = projectionPosition;
+        gl_PointSize = uSize * aScale * uPixelRatio;
+        gl_PointSize *= (1.0 / - viewPosition.z)
+    ;}`,
+    fragmentShader: `
+    void main() {
+
+        float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
+        float strength = 0.05 / distanceToCenter - 0.1;
+        gl_FragColor = vec4(gl_PointCoord, 1.0, strength);
+    }
+    `
+})
+
+const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+scene.add(particles)
 
 
 /**
@@ -190,16 +253,16 @@ function throwBall(controller) {
     const cube = cubes[cubeIdx]
 
     camera.getWorldDirection(playerDirection)
-    const direction = controller ? controller.position : playerDirection
-    if (controller) console.log(controller);
+    const direction = playerDirection
 
 
     const impulse = controller ? 35 : 15 + 30 * (1 - Math.exp((mouseTime - performance.now()) * 0.001))
     if (controller) {
-        const vel = direction;
-        vel.z -= 0.5
-        cube.velocity.copy(vel).multiplyScalar(impulse)
-        cube.collider.center.copy(dolly.position);
+        direction.y += 0.3
+        cube.velocity.copy(direction).multiplyScalar(impulse)
+        const pos = dolly.position
+        pos.y += 1.7
+        cube.collider.center.copy(pos);
     }
     else {
         cube.velocity.copy(direction).multiplyScalar(impulse)
@@ -399,12 +462,11 @@ function controls(deltaTime) {
 const material = new THREE.MeshBasicMaterial({ color: '#2AF8FF' })
 const loader = new GLTFLoader().setPath('./models/gltf/');
 
-loader.load('map_colored_3.glb', (gltf) => {
+loader.load('map.glb', (gltf) => {
 
     scene.add(gltf.scene);
 
     worldOctree.fromGraphNode(gltf.scene);
-
 
     gltf.scene.traverse(child => {
 
@@ -423,7 +485,7 @@ loader.load('map_colored_3.glb', (gltf) => {
     helper.visible = false;
     scene.add(helper);
 
-    animate();
+    renderer.setAnimationLoop(animate)
 
 });
 
@@ -442,8 +504,6 @@ function jump() {
         playerVelocity.y = 15;
     }
 }
-
-renderer.setAnimationLoop(animate)
 
 setController()
 
@@ -492,6 +552,8 @@ function moveCamera(deltaTime) {
 function animate() {
 
     const deltaTime = Math.min(0.05, clock.getDelta()) / STEPS_PER_FRAME
+
+    particlesMaterial.uniforms.uTime.value = clock.getElapsedTime()
 
     scene.updateMatrixWorld()
     scene.updateWorldMatrix()
