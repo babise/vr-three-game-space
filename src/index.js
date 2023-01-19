@@ -9,7 +9,6 @@ import { Capsule } from './libs/Capsule.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory';
 import { Pane } from 'tweakpane';
-import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
 
 /**
  * CONSTANTS
@@ -31,13 +30,14 @@ const container = document.getElementById('container');
 
 let controller1, controller2, hand1, hand2
 
-// const pane = new Pane()
 
 /**
  * SETUP SCENE
  */
 
-//
+
+const CUBE_RADIUS = 0.4
+const cubeGeometry = new THREE.BoxGeometry(CUBE_RADIUS, CUBE_RADIUS, CUBE_RADIUS);
 
 const clock = new THREE.Clock();
 
@@ -94,19 +94,8 @@ const cubeMaterial = new THREE.MeshPhysicalMaterial({
     flatShading: false,
     color: new THREE.Color(options.color),
     opacity: 0.1,
-    // envMap: hdrEquirect
 });
 
-// pane.addInput(options, 'color').on('change', () => cubeMaterial.color = new THREE.Color(options.color));
-
-// pane.addInput(options, 'transmission', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.transmission = options.transmission);
-// pane.addInput(options, 'thickness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.thickness = options.thickness);
-// pane.addInput(options, 'roughness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.roughness = options.roughness);
-// pane.addInput(options, 'metalness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.metalness = options.metalness);
-// pane.addInput(options, 'reflectivity', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.reflectivity = options.reflectivity);
-// pane.addInput(options, 'clearcoat', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.clearcoat = options.clearcoat);
-// pane.addInput(options, 'clearcoatRoughness', { min: 0, max: 1, step: 0.01 }).on('change', () => cubeMaterial.clearcoatRoughness = options.clearcoatRoughness);
-// pane.addInput(cubeMaterial, 'flatShading');
 
 const transparentCubeGroup = new THREE.Group();
 scene.add(transparentCubeGroup);
@@ -122,46 +111,21 @@ areaLight.position.set(0, 5, 0);
 
 const shroomAreaLight = new THREE.RectAreaLight(0xffffff, 342.39, 3.37, 3.04);
 shroomAreaLight.position.set(7.83, 20.98, -11.30);
-const shroomAreaLightHelper = new RectAreaLightHelper(shroomAreaLight);
-// shroomAreaLight.add(shroomAreaLightHelper);
 shroomAreaLight.lookAt(transparentCube.position);
 
-// pane.addInput(shroomAreaLight, 'intensity', { min: 0, max: 500, step: 0.01 });
-// pane.addInput(shroomAreaLight, 'width', { min: 0, max: 10, step: 0.01 });
-// pane.addInput(shroomAreaLight, 'height', { min: 0, max: 10, step: 0.01 });
-// pane.addInput(shroomAreaLight.position, 'x', { min: -40, max: 70, step: 0.01 });
-// pane.addInput(shroomAreaLight.position, 'y', { min: -40, max: 70, step: 0.01 });
-// pane.addInput(shroomAreaLight.position, 'z', { min: -40, max: 70, step: 0.01 });
-// pane.addInput(lightLookAt, 'x', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
-// pane.addInput(lightLookAt, 'y', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
-// pane.addInput(lightLookAt, 'z', { min: -40, max: 70, step: 0.01 }).on('change', () => shroomAreaLight.lookAt(lightLookAt));
 
 
 scene.add(shroomAreaLight);
 
 
 //Add spot light
-const fatmaAreaLight = new THREE.RectAreaLight(0x0fffaf, 114.13, 7.28, 7.93);
+const fatmaAreaLight = new THREE.RectAreaLight(0x0fffaf, 20, 7.28, 7.93);
 fatmaAreaLight.position.set(-50.22, 25.87, 13.70);
-// const fatmaAreaLightHelper = new RectAreaLightHelper(fatmaAreaLight);
-// fatmaAreaLight.add(fatmaAreaLightHelper);
 const fatmaAreaLightLookAt = new THREE.Vector3(-56.09, 18.69, 16.23);
 fatmaAreaLight.lookAt(fatmaAreaLightLookAt);
 
-// pane.addInput(fatmaAreaLight.position, 'x', { min: -70, max: 70, step: 0.01 });
-// pane.addInput(fatmaAreaLight.position, 'y', { min: -70, max: 70, step: 0.01 });
-// pane.addInput(fatmaAreaLight.position, 'z', { min: -70, max: 70, step: 0.01 });
-// pane.addInput(fatmaAreaLight, 'intensity', { min: 0, max: 500, step: 0.01 });
-// pane.addInput(fatmaAreaLight, 'width', { min: 0, max: 10, step: 0.01 });
-// pane.addInput(fatmaAreaLight, 'height', { min: 0, max: 10, step: 0.01 });
-
-
 
 scene.add(fatmaAreaLight);
-
-
-
-
 
 const directionalLight = new THREE.DirectionalLight(0x7b00ff, 0.8);
 directionalLight.position.set(- 5, 25, - 1);
@@ -194,20 +158,12 @@ directionalLight2.shadow.bias = - 0.00006;
 scene.add(directionalLight2);
 
 
-
-
-// pane.addInput(transparentCube.position, 'x', { min: 4, max: 7, step: 0.01 })
-// pane.addInput(transparentCube.position, 'y', { min: 4, max: 20, step: 0.01 })
-// pane.addInput(transparentCube.position, 'z', { min: -15, max: -12, step: 0.01 })
-// pane.addInput(transparentCube.rotation, 'x', { min: 0, max: 5, step: 0.01 })
-// pane.addInput(transparentCube.rotation, 'y', { min: 0, max: 5, step: 0.01 })
-// pane.addInput(transparentCube.rotation, 'z', { min: 0, max: 5, step: 0.01 })
 /**
  * Particules
  */
 
 const particlesGeometry = new THREE.BufferGeometry()
-const particlesCount = 300
+const particlesCount = 150
 const positionArray = new Float32Array(particlesCount * 3)
 const scaleArray = new Float32Array(particlesCount)
 
@@ -285,8 +241,7 @@ container.appendChild(button)
 
 for (let i = 0; i < NUM_CUBES; i++) {
 
-    const CUBE_RADIUS = Math.random() / 2 + 0.2
-    const cubeGeometry = new THREE.BoxGeometry(CUBE_RADIUS, CUBE_RADIUS, CUBE_RADIUS);
+
     const cubeMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(Math.random(), Math.random(), Math.random()),
     });
@@ -672,8 +627,8 @@ function animate() {
     scene.updateMatrixWorld()
     scene.updateWorldMatrix()
 
-    transparentCube.rotation.x += 0.01
-    transparentCube.rotation.y += 0.01
+    transparentCube.rotation.x += 0.005
+    transparentCube.rotation.y += 0.005
 
     for (let i = 0; i < STEPS_PER_FRAME; i++) {
         controls(deltaTime)
